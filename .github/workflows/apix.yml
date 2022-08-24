@@ -1,11 +1,13 @@
 # This is a sample workflow to help working with API specs based on APIx Manager, main steps:
-# 1. add secrets for your github actions, e.g. APIX_OAUTH2_CLIENT_SECRET
+# 1. add secrets for your github actions, e.g. APIX_OAUTH2_CLIENT_SECRET e.g. {github_repo}/settings/secrets/actions
 # 2. add below workflow in your github repo.
 
 name: APIx
 
 on:
   push:
+    branches:
+      - "*"
     tags: [v*.*-*]
 
 env:
