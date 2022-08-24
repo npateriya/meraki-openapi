@@ -1,0 +1,85 @@
+# This is a sample workflow to help working with API specs based on APIx Manager, main steps:
+# 1. add secrets for your github actions, e.g. APIX_OAUTH2_CLIENT_SECRET
+# 2. add below workflow in your github repo.
+
+name: APIx
+
+on:
+  push:
+    tags: [v*.*-*]
+
+env:
+  API_SPEC: openapi/spec2.json
+  APIX_SERVICE: meraki_dashboard
+  APIX_CLI_NAME: apiregistryctl
+  APIX_CLI_DOWNLOAD_URL: https://static.production.devnetcloud.com/libs/apixmanager-cli/latest/linux/amd64/apiregistryctl
+  APIX_CLI_VERSION: latest
+  APIX_HOST: https://devnet-testing.cisco.com
+  APIX_BASE_PATH: /v1/apiregistry-cisco
+  APIX_AUTH_TYPE: oauth2
+  APIX_OAUTH2_GRANT_TYPE: client_credentials
+  APIX_OAUTH2_TOKEN_URL: https://auth-devnet-stg.cisco.com/v1/auth/oauth/token
+  APIX_OAUTH2_CLIENT_ID: bu-service-client
+  APIX_OAUTH2_CLIENT_SECRET: ${{ secrets.APIX_OAUTH2_CLIENT_SECRET }}
+  RELEASE_REVISON: 10
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # analyze API specs
+  # by default, it fails if there is any findings in error severity.
+  # additionally, `--fail-below-score int` could be used to fail this step with specified minimal target score.
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: APIx - Install CLI
+        uses: supplypike/setup-bin@v1
+        with:
+          uri: ${{ env.APIX_CLI_DOWNLOAD_URL }}
+          name: ${{ env.APIX_CLI_NAME }}
+          version: ${{ env.APIX_CLI_VERSION }}
+      - name: APIx - Analyze API Spec
+        run: |
+          apiregistryctl analyze ${{ env.API_SPEC}} --fail-below-score 80 --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: APIx - Install CLI
+        uses: supplypike/setup-bin@v1
+        with:
+          uri: ${{ env.APIX_CLI_DOWNLOAD_URL }}
+          name: ${{ env.APIX_CLI_NAME }}
+          version: ${{ env.APIX_CLI_VERSION }}
+      - name: APIx - Diff API SPec
+        run: |
+          apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest --fail-on-incompatible --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+  upload:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v3
+      - name: APIx - Install CLI
+        uses: supplypike/setup-bin@v1
+        with:
+          uri: ${{ env.APIX_CLI_DOWNLOAD_URL }}
+          name: ${{ env.APIX_CLI_NAME }}
+          version: ${{ env.APIX_CLI_VERSION }}
+      - name: Set tag env
+        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - id: parse-tags
+        name: Parse tags
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const items = "${{ env.RELEASE_TAG }}".split('-')
+            console.log(items)
+            core.setOutput('version', items[0])
+            core.setOutput('revision', items[1])
+      - name: Set version env
+        run: echo "RELEASE_VERSION=${{steps.parse-tags.outputs.version}}" >> $GITHUB_ENV
+      - name: Set revision env
+        run: echo "RELEASE_REVISON=${{steps.parse-tags.outputs.revision}}" >> $GITHUB_ENV
+      - name: APIx - Upload API SPec
+        run: |
+          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }} --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
