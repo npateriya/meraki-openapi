@@ -1,5 +1,5 @@
 # This is a sample workflow to help working with API specs based on APIx Manager, main steps:
-# 1. add secrets for your github actions, e.g. APIX_OAUTH2_CLIENT_SECRET e.g. {github_repo}/settings/secrets/actions
+# 1. add secrets for your github actions, e.g. APIX_OAUTH2_CLIENT_SECRET in {your_github_repo}/settings/secrets/actions
 # 2. add below workflow in your github repo.
 
 name: APIx
@@ -42,7 +42,7 @@ jobs:
           version: ${{ env.APIX_CLI_VERSION }}
       - name: APIx - Analyze API Spec
         run: |
-          apiregistryctl analyze ${{ env.API_SPEC}} --fail-below-score 80 --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+          apiregistryctl analyze ${{ env.API_SPEC }} --fail-below-score 80 --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
   diff:
     runs-on: ubuntu-latest
     steps:
@@ -57,6 +57,8 @@ jobs:
         run: |
           apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest --fail-on-incompatible --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
   upload:
+    # Use `needs` to define prerequisite jobs, e.g. only upload when step `analyze` and `diff` is successful.
+    # needs: [ analyze, diff]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
