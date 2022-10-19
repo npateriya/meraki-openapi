@@ -11,7 +11,7 @@ on:
     tags: [v*.*-*]
 
 env:
-  API_SPEC: openapi/spec2.json
+  API_SPEC: openapi/spec2.json # e.g. openapi/spec2.json
   APIX_SERVICE: meraki_dashboard
   APIX_CLI_NAME: apiregistryctl
   APIX_CLI_DOWNLOAD_URL: https://static.production.devnetcloud.com/libs/apixmanager-cli/latest/linux/amd64/apiregistryctl
