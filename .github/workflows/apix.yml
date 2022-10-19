@@ -42,7 +42,7 @@ jobs:
           version: ${{ env.APIX_CLI_VERSION }}
       - name: APIx - Analyze API Spec
         run: |
-          apiregistryctl analyze ${{ env.API_SPEC }} --fail-below-score 80 --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+          apiregistryctl analyze ${{ env.API_SPEC }} --fail-below-score 80
   diff:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +55,7 @@ jobs:
           version: ${{ env.APIX_CLI_VERSION }}
       - name: APIx - Diff API SPec
         run: |
-          apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest --fail-on-incompatible --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+          apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest --fail-on-incompatible 
   upload:
     # Use `needs` to define prerequisite jobs, e.g. only upload when step `analyze` and `diff` is successful.
     # needs: [ analyze, diff]
@@ -86,4 +86,4 @@ jobs:
         run: echo "RELEASE_REVISON=${{steps.parse-tags.outputs.revision}}" >> $GITHUB_ENV
       - name: APIx - Upload API SPec
         run: |
-          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }} --host ${{ env.APIX_HOST }} --base-path ${{ env.APIX_BASE_PATH }} --auth-type ${{ env.APIX_AUTH_TYPE }} --oauth2-grant-type ${{ env.APIX_OAUTH2_GRANT_TYPE }} --oauth2-token-url ${{ env.APIX_OAUTH2_TOKEN_URL }} --oauth2-client-id ${{ env.APIX_OAUTH2_CLIENT_ID }} --oauth2-client-secret ${{ env.APIX_OAUTH2_CLIENT_SECRET }}
+          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }}
