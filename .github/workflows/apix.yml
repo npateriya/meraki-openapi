@@ -23,6 +23,8 @@ env:
   APIX_OAUTH2_TOKEN_URL: https://auth-devnet-stg.cisco.com/v1/auth/oauth/token
   APIX_OAUTH2_CLIENT_ID: bu-service-client
   APIX_OAUTH2_CLIENT_SECRET: ${{ secrets.APIX_OAUTH2_CLIENT_SECRET }}
+  GIT_EMAIL: abc@gmail.com
+  CHANGE_LOG_FILE_NAME: change_log.md
   RELEASE_REVISON: 10
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -87,3 +89,17 @@ jobs:
       - name: APIx - Upload API SPec
         run: |
           apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }}
+
+      - name: Generate change log
+        run: |
+          # analyze spec log output to terminal and save it to change log file
+          apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest -o markdown | tee ${{ env.CHANGE_LOG_FILE_NAME }}
+          
+      - name: Publish/Commit change log      
+        run: |
+          # Stage the file, commit and push
+          git config user.name "GitHub Actions Bot"
+          git config user.email  ${{ env.GIT_EMAIL }}          
+          git add ${{ env.CHANGE_LOG_FILE_NAME }}
+          git diff-index --quiet HEAD || git commit -m "new change log commit"
+          git push origin $(git symbolic-ref --short HEAD) --force
