@@ -45,6 +45,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "test": {
+                  "type": "string",
+                  "description": "Test"
+                },
                 "name": {
                   "type": "string",
                   "description": "Username"
