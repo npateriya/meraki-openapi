@@ -21,7 +21,7 @@ env:
   APIX_AUTH_TYPE: oauth2
   APIX_OAUTH2_GRANT_TYPE: client_credentials
   APIX_OAUTH2_TOKEN_URL: https://auth-devnet-stg.cisco.com/v1/auth/oauth/token
-  APIX_OAUTH2_CLIENT_ID: bu-service-client
+  APIX_OAUTH2_CLIENT_ID: api-insights-meraki-developer-service
   APIX_OAUTH2_CLIENT_SECRET: ${{ secrets.APIX_OAUTH2_CLIENT_SECRET }}
   GIT_EMAIL: abc@gmail.com
   CHANGE_LOG_FILE_NAME: change_log.md
