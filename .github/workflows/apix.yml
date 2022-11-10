@@ -86,14 +86,15 @@ jobs:
         run: echo "RELEASE_VERSION=${{steps.parse-tags.outputs.version}}" >> $GITHUB_ENV
       - name: Set revision env
         run: echo "RELEASE_REVISON=${{steps.parse-tags.outputs.revision}}" >> $GITHUB_ENV
-      - name: APIx - Upload API SPec
-        run: |
-          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }}
 
       - name: Generate change log
         run: |
           # analyze spec log output to terminal and save it to change log file
           apiregistryctl diff ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --latest -o markdown | tee ${{ env.CHANGE_LOG_FILE_NAME }}
+
+      - name: APIx - Upload API SPec
+        run: |
+          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }}
           
       - name: Upload Changelog to GitHub Releases
         uses: softprops/action-gh-release@v1
