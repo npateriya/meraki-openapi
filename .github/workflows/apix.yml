@@ -65,6 +65,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: $(git symbolic-ref --short HEAD)      
       - name: APIx - Install CLI
         uses: supplypike/setup-bin@v1
         with:
@@ -102,4 +104,4 @@ jobs:
           git config user.email  ${{ env.GIT_EMAIL }}          
           git add ${{ env.CHANGE_LOG_FILE_NAME }}
           git diff-index --quiet HEAD || git commit -m "new change log commit"
-          git push origin ${DRONE_BRANCH} --force
+          git push origin $(git symbolic-ref --short HEAD) --force
