@@ -102,4 +102,4 @@ jobs:
           git config user.email  ${{ env.GIT_EMAIL }}          
           git add ${{ env.CHANGE_LOG_FILE_NAME }}
           git diff-index --quiet HEAD || git commit -m "new change log commit"
-          git push origin $(git symbolic-ref --short HEAD) --force
+          git push origin ${DRONE_BRANCH} --force
