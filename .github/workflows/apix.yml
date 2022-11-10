@@ -88,7 +88,7 @@ jobs:
         run: echo "RELEASE_REVISON=${{steps.parse-tags.outputs.revision}}" >> $GITHUB_ENV
       - name: APIx - Upload API SPec
         run: |
-          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }} || true
+          apiregistryctl service uploadspec ${{ env.API_SPEC }} -s ${{ env.APIX_SERVICE }} --revision ${{ env.RELEASE_REVISON }}
 
       - name: Generate change log
         run: |
